@@ -8,6 +8,7 @@ import com.gmail.lgsc92.dto.EmailRequestDTO;
 
 @Component
 public class EmailMapper {
+	
     public EmailAwsDTO toAwsDTO(EmailRequestDTO dto) {
         return new EmailAwsDTO(dto.destinatario(), dto.nomeDestinatario(), dto.remetente(), dto.assunto(), dto.conteudo());
     }
