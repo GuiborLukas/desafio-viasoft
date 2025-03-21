@@ -3,36 +3,46 @@ package com.gmail.lgsc92.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gmail.lgsc92.dto.EmailRequestDTO;
-import com.gmail.lgsc92.mapper.EmailMapper;
+import com.gmail.lgsc92.service.aws.AwsEmailIntegrationStrategy;
+import com.gmail.lgsc92.service.oci.OciEmailIntegrationStrategy;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class EmailService {
-	@Value("${mail.integracao}")
-	private String mailIntegration;
 
-	private final EmailMapper mapper;
-	private final ObjectMapper objectMapper;
+    @Value("${mail.integracao}")
+    private String mailIntegration;
+    
+    private final AwsEmailIntegrationStrategy awsStrategy;
+    private final OciEmailIntegrationStrategy ociStrategy;
+    private EmailIntegrationStrategy emailIntegrationStrategy;
 
-	public EmailService(EmailMapper mapper, ObjectMapper objectMapper) {
-		this.mapper = mapper;
-		this.objectMapper = objectMapper;
-	}
+    public EmailService(AwsEmailIntegrationStrategy awsStrategy, OciEmailIntegrationStrategy ociStrategy) {
+        this.awsStrategy = awsStrategy;
+        this.ociStrategy = ociStrategy;
+    }
 
-	public void processEmail(EmailRequestDTO dto) {
-		try {
-			String json;
-			if ("AWS".equalsIgnoreCase(mailIntegration)) {
-				json = objectMapper.writeValueAsString(mapper.toAwsDTO(dto));
-			} else if ("OCI".equalsIgnoreCase(mailIntegration)) {
-				json = objectMapper.writeValueAsString(mapper.toOciDTO(dto));
-			} else {
-				throw new IllegalArgumentException("Configuração inválida para mail.integracao");
-			}
-			System.out.println("Serialized JSON " + mailIntegration + ": " + json);
-		} catch (Exception e) {
-			throw new RuntimeException("Erro ao processar e-mail", e);
-		}
-	}
+    @PostConstruct
+    public void init() {
+        if (mailIntegration == null) {
+            throw new IllegalArgumentException("Configuração mail.integracao não definida");
+        }
+        switch (mailIntegration.toUpperCase()) {
+            case "AWS":
+                this.emailIntegrationStrategy = awsStrategy;
+                break;
+            case "OCI":
+                this.emailIntegrationStrategy = ociStrategy;
+                break;
+            default:
+                throw new IllegalArgumentException("Configuração inválida para mail.integracao");
+        }
+    }
+
+    public void execute(EmailRequestDTO request) {
+        emailIntegrationStrategy.sendEmail(request.destinatario(), request.nomeDestinatario(), request.remetente(), request.assunto(), request.assunto());
+    }
+
 }
