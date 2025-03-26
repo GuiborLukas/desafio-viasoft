@@ -1,14 +1,30 @@
 package com.gmail.lgsc92.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 public record EmailRequestDTO(
-		@NotBlank @Email @Size(max = 45) @JsonProperty("E-mail do destinatário") String destinatario,
-		@NotBlank @Size(max = 60) @JsonProperty("Nome do destinatário") String nomeDestinatario,
-		@NotBlank @Email @Size(max = 45) @JsonProperty("Email do remetente") String remetente,
-		@NotBlank @Size(max = 120) @JsonProperty("Assunto") String assunto,
-		@NotBlank @Size(max = 256) @JsonProperty("Conteúdo") String conteudo) {
+        @NotBlank 
+        @Email 
+        @Schema(description = "E-mail do destinatário", example = "destinatario@exemplo.com")
+        @JsonProperty("E-mail do destinatário") String destinatario,
+
+        @NotBlank 
+        @Schema(description = "Nome do destinatário", example = "João Silva")
+        @JsonProperty("Nome do destinatário") String nomeDestinatario,
+
+        @NotBlank 
+        @Schema(description = "Email do remetente", example = "remetente@exemplo.com")
+        @JsonProperty("Email do remetente") String remetente,
+
+        @NotBlank 
+        @Schema(description = "Assunto", example = "Assunto do e-mail")
+        @JsonProperty("Assunto") String assunto,
+
+        @NotBlank 
+        @Schema(description = "Conteúdo", example = "Este é o conteúdo do e-mail.")
+        @JsonProperty("Conteúdo") String conteudo) {
 }
+

@@ -1,16 +1,16 @@
-package com.gmail.lgsc92.service;
+package com.gmail.lgsc92.service.strategy;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.gmail.lgsc92.dto.EmailRequestDTO;
-import com.gmail.lgsc92.service.aws.AwsEmailIntegrationStrategy;
-import com.gmail.lgsc92.service.oci.OciEmailIntegrationStrategy;
+import com.gmail.lgsc92.service.strategy.aws.AwsEmailIntegrationStrategy;
+import com.gmail.lgsc92.service.strategy.oci.OciEmailIntegrationStrategy;
 
 import jakarta.annotation.PostConstruct;
 
 @Service
-public class EmailService {
+public class EmailServiceStrategy {
 
     @Value("${mail.integracao}")
     private String mailIntegration;
@@ -19,7 +19,7 @@ public class EmailService {
     private final OciEmailIntegrationStrategy ociStrategy;
     private EmailIntegrationStrategy emailIntegrationStrategy;
 
-    public EmailService(AwsEmailIntegrationStrategy awsStrategy, OciEmailIntegrationStrategy ociStrategy) {
+    public EmailServiceStrategy(AwsEmailIntegrationStrategy awsStrategy, OciEmailIntegrationStrategy ociStrategy) {
         this.awsStrategy = awsStrategy;
         this.ociStrategy = ociStrategy;
     }
@@ -37,12 +37,12 @@ public class EmailService {
                 this.emailIntegrationStrategy = ociStrategy;
                 break;
             default:
-                throw new IllegalArgumentException("Configuração inválida para mail.integracao");
+                throw new IllegalArgumentException("Configuração inválida para mail.integracao: " + mailIntegration);
         }
     }
 
     public void execute(EmailRequestDTO request) {
-        emailIntegrationStrategy.sendEmail(request.destinatario(), request.nomeDestinatario(), request.remetente(), request.assunto(), request.assunto());
+        emailIntegrationStrategy.sendEmail(request);
     }
 
 }
